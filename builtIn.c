@@ -17,3 +17,8 @@ int smallsh_exit(char **args)
 {
     return 0;
 }
+
+int smallsh_comment(char **args)
+{
+    return 1;
+}

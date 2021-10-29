@@ -3,5 +3,6 @@
 
 int smallsh_cd(char **);
 int smallsh_exit(char **);
+int smallsh_comment(char **);
 
 #endif

@@ -8,11 +8,8 @@
 #include "helpers.h"
 #include "smallsh.h"
 
-#define TOKEN_BUFFER_SIZE 64
-#define TOKEN_DELIMITER " \t\r\n\a"
-
-char *built_in_commands[] = {"cd", "exit"};
-int (*built_in_func[])(char **) = {&smallsh_cd, &smallsh_exit};
+char *built_in_commands[] = {"cd", "exit", "#"};
+int (*built_in_func[])(char **) = {&smallsh_cd, &smallsh_exit, &smallsh_comment};
 
 void smallsh(void)
 {
