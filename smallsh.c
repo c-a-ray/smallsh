@@ -81,13 +81,28 @@ int execute_command(char **command_args)
     if (command_args[0] == NULL)
         return 1;
 
-    int num_commands = sizeof(built_in_commands) / sizeof(char *);
+    expand_pid_variable(command_args);
 
-    for (int i = 0; i < num_commands; i++)
+    for (int i = 0; i < sizeof(built_in_commands) / sizeof(char *); i++)
         if (strcmp(command_args[0], built_in_commands[i]) == 0)
             return (*built_in_func[i])(command_args);
 
     return execute_non_builtIn_command(command_args);
+}
+
+void expand_pid_variable(char **command_args)
+{
+    int i = 0;
+    while (command_args[i] != NULL)
+    {
+        if (strcmp(command_args[i], "$$") == 0)
+        {
+            char *pid = malloc(sizeof(char) * 5);
+            sprintf(pid, "%d", getpid());
+            command_args[i] = pid;
+        }
+        i++;
+    }
 }
 
 int execute_non_builtIn_command(char **args)
