@@ -1,5 +1,5 @@
 setup:
-	gcc -std=gnu99 -o smallsh main.c smallsh.c builtIn.c helpers.c
+	gcc -std=gnu99 -o smallsh smallsh.c
 
 clean:
 	rm smallsh
