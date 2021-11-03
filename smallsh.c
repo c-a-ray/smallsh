@@ -119,7 +119,6 @@ void handle_SIGTSTP(int signo)
         allow_bg = false;
         char *msg = "Entering foreground-only mode (& is now ignored)\n";
         write(STDOUT_FILENO, msg, 50);
-        free(msg);
     }
     else // Currently in foreground-only mode
     {
@@ -127,10 +126,7 @@ void handle_SIGTSTP(int signo)
         allow_bg = true;
         char *msg = "Exiting foreground-only mode\n";
         write(STDOUT_FILENO, msg, 30);
-        free(msg);
     }
-
-    fflush(stdout);
 }
 
 void reset_command(struct command *cmd)
