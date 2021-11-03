@@ -171,6 +171,15 @@ void handle_redirect(char *, const char *);
  */
 struct background run_bg_census(struct background, int);
 
+/**
+ * Kill all background processes stored in bg
+ * 
+ * This function is intended to be run as smallsh is exiting. bg should contain all of the PIDs of the processes that 
+ * were running in the background after the last command was run. This function walks through all of those PIDs,
+ * killing any that are still running (sends SIGKILL).
+ * 
+ * @param bg the background struct containing information about all processes running in the background after the last command executed
+ */
 void kill_zombies(struct background bg);
 
 #endif

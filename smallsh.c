@@ -408,10 +408,10 @@ void kill_zombies(struct background bg)
 {
     pid_t pid;
     int exitVal;
-    for (int i = 0; i < bg.size; i++)
+    for (int i = 0; i < bg.size; i++) // Walk through all processes that were running in background after last command
     {
-        pid = waitpid(bg.pids[i], &exitVal, WNOHANG);
-        if (pid == 0)
-            kill(bg.pids[i], SIGKILL);
+        pid = waitpid(bg.pids[i], &exitVal, WNOHANG); // Check on it
+        if (pid == 0)                                 // The process is still running
+            kill(bg.pids[i], SIGKILL);                // So kill it
     }
 }
