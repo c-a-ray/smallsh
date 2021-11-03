@@ -99,6 +99,17 @@ void parse_command(char *, struct command *);
 bool strmatch(const char *, const char *);
 
 /**
+ * Replace any instance of "$$" in token to the value of pid, storing the expanded version in result 
+ * 
+ * @param result a string to hold the current argument after "$$" has been replaced by the PID. Must
+ *        be large enough to hold a string containing only '$' characters 
+ *        (half the string length * the max number of digits in a PID)
+ * @param token the original arg perform variable expansion on
+ * @param the current PID, stored as a string
+ */
+void expand_pid(char *, char *, char *);
+
+/**
  * Execute the command entered by the user
  * 
  * Execute built-in function if one exists, otherwise outsource execution, and

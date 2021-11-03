@@ -142,6 +142,10 @@ void parse_command(char *cmd_str, struct command *cmd)
     // Get the first argument
     char *token = strtok(cmd_str, TOKEN_DELIMITER);
 
+    // Create a string to hold the PID for variable expansion
+    char *pid_str = malloc(sizeof(char) * MAX_PID_LEN + 1);
+    sprintf(pid_str, "%d", getpid());
+
     // Iterate through all arguments in command
     while (token != NULL)
     {
@@ -159,11 +163,10 @@ void parse_command(char *cmd_str, struct command *cmd)
         }
         else // Not a redirect character
         {
-            if (strmatch(token, "$$")) // PID variable encountered
+            if (strstr(token, "$$") != NULL) // Token has at least one instance of "$$"
             {
-                char *pid_str = malloc(sizeof(char) * MAX_PID_LEN + 1); // Create a string to hold the PID
-                sprintf(pid_str, "%d", getpid());                       // Write the PID to the PID string
-                tokens[(*cmd).nargs] = pid_str;                         // Replace $$ with the PID string
+                tokens[(*cmd).nargs] = malloc((sizeof(char) * ((strlen(token)) / 2) + 1) * strlen(pid_str) + 1); // Allocate enough space for a token with only '$' characters
+                expand_pid(tokens[(*cmd).nargs], token, pid_str);                                                // Replace all instances of "$$" with the PID
             }
             else                              // It's a regular argument
                 tokens[(*cmd).nargs] = token; // Store it as it is
@@ -193,6 +196,40 @@ bool strmatch(const char *str1, const char *str2)
     if (strcmp(str1, str2) == 0)
         return true; // Strings match
     return false;    // Strings don't match
+}
+
+void expand_pid(char *result, char *token, char *pid)
+{
+    // Create a buffer large enough to hold a token consisting entirely of $ characters
+    // i.e. half of the string length * the max number of digits in a PID
+    char *buf = malloc(sizeof(char) * (((strlen(token) / 2) + 1) * MAX_PID_LEN) + 1);
+
+    char *pos = buf;   // The position to insert at
+    char *tmp = token; // Temp variable to store chunks of the token
+
+    while (true)
+    {
+        char *substr = strstr(tmp, "$$"); // Get the substring starting at the first occurrence of "$$"
+        if (substr != NULL)
+        {
+            // Copy over the chunk before substr
+            memcpy(pos, tmp, substr - tmp);
+            pos += substr - tmp;
+
+            // Copy over the PID value
+            memcpy(pos, pid, strlen(pid));
+            pos += strlen(pid);
+
+            tmp = substr + 2; // Move past "$$"
+        }
+        else // We've gone beyond the last instance of "$$""
+        {
+            strcpy(pos, tmp); // Copy the remaining part of the string
+            break;
+        }
+    }
+
+    strcpy(result, buf); // Copy buffer into result
 }
 
 bool exec_cmd(struct command *cmd, int *lastExit, struct sigaction sa_SIGINT, struct background *bg)
