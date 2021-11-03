@@ -98,7 +98,7 @@ void handle_SIGTSTP(int signo)
     {
         // Switch to foreground-only mode
         allow_bg = false;
-        const char *msg = "Entering foreground-only mode (& is now ignored)\n";
+        char *msg = "Entering foreground-only mode (& is now ignored)\n";
         write(STDOUT_FILENO, msg, strlen(msg));
         free(msg);
     }
@@ -106,7 +106,7 @@ void handle_SIGTSTP(int signo)
     {
         // Exit foreground-only mode
         allow_bg = true;
-        const char *msg = "Exiting foreground-only mode\n";
+        char *msg = "Exiting foreground-only mode\n";
         write(STDOUT_FILENO, msg, strlen(msg));
         free(msg);
     }
