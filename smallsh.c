@@ -143,8 +143,8 @@ void parse_command(char *cmd_str, struct command *cmd)
     char *token = strtok(cmd_str, TOKEN_DELIMITER);
 
     // Create a string to hold the PID for variable expansion
-    // char *pid_str = malloc(sizeof(char) * MAX_PID_LEN + 1);
-    // sprintf(pid_str, "%d", getpid());
+    char *pid_str = malloc(sizeof(char) * MAX_PID_LEN + 1);
+    sprintf(pid_str, "%d", getpid());
 
     // Iterate through all arguments in command
     while (token != NULL)
@@ -163,13 +163,14 @@ void parse_command(char *cmd_str, struct command *cmd)
         }
         else // Not a redirect character
         {
-            // if (strstr(token, "$$") != NULL) // Token has at least one instance of "$$"
-            // {
-            //     tokens[(*cmd).nargs] = malloc((sizeof(char) * ((strlen(token)) / 2) + 1) * strlen(pid_str) + 1); // Allocate enough space for a token with only '$' characters
-            //     expand_pid(tokens[(*cmd).nargs], token, pid_str);                                                // Replace all instances of "$$" with the PID
-            // }
-            // else                              // It's a regular argument
-            tokens[(*cmd).nargs] = token; // Store it as it is
+            if (strstr(token, "$$") != NULL) // Token has at least one instance of "$$"
+            {
+                char *result = malloc((sizeof(char) * ((strlen(token)) / 2) + 1) * strlen(pid_str) + 1); // Allocate enough space for a token with only '$' characters
+                expand_pid(result, token, pid_str);                                                      // Replace all instances of "$$" with the PID
+                tokens[(*cmd).nargs] = result;
+            }
+            else                              // It's a regular argument
+                tokens[(*cmd).nargs] = token; // Store it as it is
 
             (*cmd).nargs++; // Increment the number of arguments
         }
