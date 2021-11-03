@@ -171,4 +171,6 @@ void handle_redirect(char *, const char *);
  */
 struct background run_bg_census(struct background, int);
 
+void kill_zombies(struct background bg);
+
 #endif

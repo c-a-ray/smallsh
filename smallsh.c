@@ -77,6 +77,8 @@ int main()
         free(cmd.inFile);
         free(cmd.outFile);
     } while (cont);
+
+    kill_zombies(bg);
 }
 
 void handle_SIGTSTP(int signo)
@@ -400,4 +402,16 @@ struct background run_bg_census(struct background bg, int lastExit)
     }
     fflush(stdout);
     return still_running; // Return the new background struct, with only info about still-running background processes
+}
+
+void kill_zombies(struct background bg)
+{
+    pid_t pid;
+    int exitVal;
+    for (int i = 0; i < bg.size; i++)
+    {
+        pid = waitpid(bg.pids[i], &exitVal, WNOHANG);
+        if (pid == 0)
+            kill(bg.pids[i], SIGKILL);
+    }
 }
