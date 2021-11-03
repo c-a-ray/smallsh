@@ -33,7 +33,8 @@ int main()
     // Setup SIGINT (Ctrl-C) and SIGTSTP (Ctrl-Z)
     // Initialize sigaction struct for SIGTSTP and register handler to togger foreground-only mode
     struct sigaction sa_SIGTSTP = {0};
-    sa_SIGTSTP.sa_handler = handle_SIGTSTP;
+    // sa_SIGTSTP.sa_handler = handle_SIGTSTP;
+    sa_SIGTSTP.sa_handler = SIG_IGN;
     sigfillset(&sa_SIGTSTP.sa_mask);
     sa_SIGTSTP.sa_flags = 0;
     sigaction(SIGTSTP, &sa_SIGTSTP, NULL);
@@ -63,7 +64,6 @@ int main()
         // Display prompt
         printf(": ");
         fflush(stdout);
-        fflush(stdin);
 
         // Zero out members of the command struct so we can store the next command
         reset_command(&cmd);
