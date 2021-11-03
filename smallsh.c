@@ -114,7 +114,8 @@ struct sigaction setup_sigactions()
 void handle_SIGTSTP(int signo)
 {
     char *msg = "You pressed Ctrl-Z!\n";
-    write(STDOUT_FILENO, msg, 22);
+    write(STDOUT_FILENO, msg, 50);
+    fflush(stdout);
     // if (allow_bg) // Not currently in foreground-only mode
     // {
     //     // Switch to foreground-only mode
