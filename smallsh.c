@@ -34,7 +34,7 @@ int main()
     // Initialize sigaction struct for SIGTSTP and register handler to togger foreground-only mode
     struct sigaction sa_SIGTSTP = {0};
     sa_SIGTSTP.sa_handler = handle_SIGTSTP;
-    sigfillset(&sa_SIGTSTP.sa_mask); //
+    sigfillset(&sa_SIGTSTP.sa_mask);
     sa_SIGTSTP.sa_flags = 0;
     sigaction(SIGTSTP, &sa_SIGTSTP, NULL);
 
@@ -69,6 +69,13 @@ int main()
 
         // Read current command, parse it, and store it in cmd
         parse_command(read_command(), &cmd);
+        int i = 0;
+        printf("\n\n DEBUG: Processing: [");
+        while (cmd.args[i] != NULL)
+        {
+            printf("%s ", cmd.args[i++]);
+        }
+        printf("]\n\n");
 
         // Execute the current command
         cont = exec_cmd(&cmd, &lastExit, sa_SIGINT, &bg);
@@ -110,23 +117,17 @@ void handle_SIGTSTP(int signo)
     {
         // Switch to foreground-only mode
         allow_bg = false;
-
-        printf("Entering foreground-only mode (& is now ignored)\n");
-
-        // char *msg = "Entering foreground-only mode (& is now ignored)\n";
-        // write(STDOUT_FILENO, msg, strlen(msg));
-        // free(msg);
+        char *msg = "Entering foreground-only mode (& is now ignored)\n";
+        write(STDOUT_FILENO, msg, 50);
+        free(msg);
     }
     else // Currently in foreground-only mode
     {
         // Exit foreground-only mode
         allow_bg = true;
-
-        printf("Exiting foreground-only mode\n");
-
-        // char *msg = "Exiting foreground-only mode\n";
-        // write(STDOUT_FILENO, msg, strlen(msg));
-        // free(msg);
+        char *msg = "Exiting foreground-only mode\n";
+        write(STDOUT_FILENO, msg, 30);
+        free(msg);
     }
 
     fflush(stdout);
@@ -186,14 +187,8 @@ void parse_command(char *cmd_str, struct command *cmd)
         {
             if (strstr(token, "$$") != NULL) // Token has at least one instance of "$$"
             {
-                tokens[(*cmd).nargs] = malloc((sizeof(char) * ((strlen(token)) / 2) + 1) * strlen(pid_str) + 1);
-                expand_pid(tokens[(*cmd).nargs], token, pid_str); // Replace all instances of "$$" with the PID
-
-                // char *result = malloc((sizeof(char) * ((strlen(token)) / 2) + 1) * strlen(pid_str) + 1); // Allocate enough space for a token with only '$' characters
-                // expand_pid(result, token, pid_str);                                                      // Replace all instances of "$$" with the PID
-                // tokens[(*cmd).nargs] = malloc((sizeof(char) * ((strlen(token)) / 2) + 1) * strlen(pid_str) + 1);
-                // strcpy(tokens[(*cmd).nargs], result);
-                // free(result);
+                tokens[(*cmd).nargs] = malloc((sizeof(char) * ((strlen(token)) / 2) + 1) * strlen(pid_str) + 1); // Allocate enough space for a token with only '$' characters
+                expand_pid(tokens[(*cmd).nargs], token, pid_str);                                                // Replace all instances of "$$" with the PID and store result in tokens
             }
             else                              // It's a regular argument
                 tokens[(*cmd).nargs] = token; // Store it as it is
@@ -216,14 +211,6 @@ void parse_command(char *cmd_str, struct command *cmd)
         (*cmd).nargs--;
         tokens[(*cmd).nargs] = NULL;
     }
-
-    // int i = 0;
-    // printf("\n\n DEBUG: Processing: [");
-    // while (tokens[i] != NULL)
-    // {
-    //     printf("%s ", tokens[i++]);
-    // }
-    // printf("]\n\n");
 
     (*cmd).args = tokens; // Store the arguments in the command struct
 }
