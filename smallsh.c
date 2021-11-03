@@ -33,9 +33,9 @@ int main()
     // Setup SIGINT (Ctrl-C) and SIGTSTP (Ctrl-Z)
     // Initialize sigaction struct for SIGTSTP and register handler to togger foreground-only mode
     struct sigaction sa_SIGTSTP = {0};
-    sa_SIGTSTP.sa_handler = handle_SIGTSTP;
+    sa_SIGTSTP.sa_handler = &handle_SIGTSTP;
     sigfillset(&sa_SIGTSTP.sa_mask);
-    sa_SIGTSTP.sa_flags = 0;
+    sa_SIGTSTP.sa_flags = SA_RESTART;
     sigaction(SIGTSTP, &sa_SIGTSTP, NULL);
 
     // Initialize sigaction struct for SIGINT and ignore signal
@@ -89,48 +89,49 @@ int main()
     } while (cont);
 }
 
-struct sigaction setup_sigactions()
-{
-    // Code from "Exploration: Signal Handling API"
+// struct sigaction setup_sigactions()
+// {
+//     // Code from "Exploration: Signal Handling API"
 
-    // Initialize sigaction struct for SIGTSTP and register handler to togger foreground-only mode
-    // struct sigaction sa_SIGTSTP = {{0}};
-    // sa_SIGTSTP.sa_handler = handle_SIGTSTP;
-    // sigfillset(&sa_SIGTSTP.sa_mask); //
-    // sa_SIGTSTP.sa_flags = 0;
-    // sigaction(SIGTSTP, &sa_SIGTSTP, NULL);
+//     // Initialize sigaction struct for SIGTSTP and register handler to togger foreground-only mode
+//     struct sigaction sa_SIGTSTP = {0};
+//     sa_SIGTSTP.sa_handler = &handle_SIGTSTP;
+//     sigfillset(&sa_SIGTSTP.sa_mask);
+//     // sa_SIGTSTP.sa_flags = 0;
+//     sigaction(SIGTSTP, &sa_SIGTSTP, NULL);
 
-    signal(SIGTSTP, handle_SIGTSTP);
+//     // Initialize sigaction struct for SIGINT and ignore signal
+//     struct sigaction sa_SIGINT = {0};
+//     sa_SIGINT.sa_handler = SIG_IGN;
+//     sigfillset(&sa_SIGINT.sa_mask);
+//     sa_SIGINT.sa_flags = 0;
+//     sigaction(SIGINT, &sa_SIGINT, NULL);
 
-    // Initialize sigaction struct for SIGINT and ignore signal
-    struct sigaction sa_SIGINT = {{0}};
-    sa_SIGINT.sa_handler = SIG_IGN;
-    sigfillset(&sa_SIGINT.sa_mask);
-    sa_SIGINT.sa_flags = 0;
-    sigaction(SIGINT, &sa_SIGINT, NULL);
-
-    // Return SIGINT action for later use
-    return sa_SIGINT;
-}
+//     // Return SIGINT action for later use
+//     return sa_SIGINT;
+// }
 
 void handle_SIGTSTP(int signo)
 {
-    char *msg = "You pressed Ctrl-Z!\n";
-    write(STDOUT_FILENO, msg, 20);
-    // if (allow_bg) // Not currently in foreground-only mode
-    // {
-    //     // Switch to foreground-only mode
-    //     allow_bg = false;
-    //     char *msg = "Entering foreground-only mode (& is now ignored)\n";
-    //     write(STDOUT_FILENO, msg, 50);
-    // }
-    // else // Currently in foreground-only mode
-    // {
-    //     // Exit foreground-only mode
-    //     allow_bg = true;
-    //     char *msg = "Exiting foreground-only mode\n";
-    //     write(STDOUT_FILENO, msg, 30);
-    // }
+    fflush(stdout);
+
+    if (allow_bg)
+    {
+        allow_bg = false;
+        clearerr(stdin);
+        char *msg = "Entering foreground-only mode (& is now ignored)\n";
+        write(STDOUT_FILENO, msg, 50);
+        fflush(stdout);
+    }
+    else
+    {
+        allow_bg = true;
+        clearerr(stdin);
+        char *msg = "Exiting foreground-only mode\n";
+        write(STDOUT_FILENO, msg, 30);
+        fflush(stdout);
+    }
+    fflush(stdout);
 }
 
 void reset_command(struct command *cmd)
