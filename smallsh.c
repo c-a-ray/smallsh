@@ -100,6 +100,7 @@ void handle_SIGTSTP(int signo)
         allow_bg = false;
         const char *msg = "Entering foreground-only mode (& is now ignored)\n";
         write(STDOUT_FILENO, msg, strlen(msg));
+        free(msg);
     }
     else // Currently in foreground-only mode
     {
@@ -107,6 +108,7 @@ void handle_SIGTSTP(int signo)
         allow_bg = true;
         const char *msg = "Exiting foreground-only mode\n";
         write(STDOUT_FILENO, msg, strlen(msg));
+        free(msg);
     }
 
     fflush(stdout);
@@ -192,6 +194,14 @@ void parse_command(char *cmd_str, struct command *cmd)
         (*cmd).nargs--;
         tokens[(*cmd).nargs] = NULL;
     }
+
+    int i = 0;
+    printf("\n\n DEBUG: Processing: [");
+    while (tokens[i] != NULL)
+    {
+        printf("%s ", tokens[i++]);
+    }
+    printf("]\n\n");
 
     (*cmd).args = tokens; // Store the arguments in the command struct
 }
