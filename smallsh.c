@@ -177,7 +177,8 @@ void parse_command(char *cmd_str, struct command *cmd)
                 char *result = malloc((sizeof(char) * ((strlen(token)) / 2) + 1) * strlen(pid_str) + 1); // Allocate enough space for a token with only '$' characters
                 expand_pid(result, token, pid_str);                                                      // Replace all instances of "$$" with the PID
                 printf("DEBUG: result of variable expansion: %s\n", result);
-                tokens[(*cmd).nargs] = result;
+                tokens[(*cmd).nargs] = malloc((sizeof(char) * ((strlen(token)) / 2) + 1) * strlen(pid_str) + 1);
+                strcpy(tokens[(*cmd).nargs], result);
                 printf("DEBUG: stored in tokens: %s\n", tokens[(*cmd).nargs]);
                 free(result);
             }
@@ -203,13 +204,13 @@ void parse_command(char *cmd_str, struct command *cmd)
         tokens[(*cmd).nargs] = NULL;
     }
 
-    int i = 0;
-    printf("\n\n DEBUG: Processing: [");
-    while (tokens[i] != NULL)
-    {
-        printf("%s ", tokens[i++]);
-    }
-    printf("]\n\n");
+    // int i = 0;
+    // printf("\n\n DEBUG: Processing: [");
+    // while (tokens[i] != NULL)
+    // {
+    //     printf("%s ", tokens[i++]);
+    // }
+    // printf("]\n\n");
 
     (*cmd).args = tokens; // Store the arguments in the command struct
 }
