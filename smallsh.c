@@ -28,17 +28,16 @@ bool allow_bg = true;
 
 int main()
 {
-    // Setup SIGINT (Ctrl-C) and SIGTSTP (Ctrl-Z)
-    // Initialize sigaction struct for SIGTSTP and register handler to togger foreground-only mode
+    // Initialize sigaction struct for SIGTSTP (Ctrl-Z)
     struct sigaction sa_SIGTSTP = {0};
-    sa_SIGTSTP.sa_handler = &handle_SIGTSTP;
+    sa_SIGTSTP.sa_handler = &handle_SIGTSTP; // Register handler to toggle foreground-only mode
     sigfillset(&sa_SIGTSTP.sa_mask);
     sa_SIGTSTP.sa_flags = SA_RESTART;
     sigaction(SIGTSTP, &sa_SIGTSTP, NULL);
 
-    // Initialize sigaction struct for SIGINT and ignore signal
+    // Initialize sigaction struct for SIGINT (Ctrl-C)
     struct sigaction sa_SIGINT = {0};
-    sa_SIGINT.sa_handler = SIG_IGN;
+    sa_SIGINT.sa_handler = SIG_IGN; // Ignore signal for now, will be set back to default later on
     sigfillset(&sa_SIGINT.sa_mask);
     sa_SIGINT.sa_flags = 0;
     sigaction(SIGINT, &sa_SIGINT, NULL);
@@ -82,21 +81,26 @@ int main()
 
 void handle_SIGTSTP(int signo)
 {
+    // Clear stdout and stdin
     fflush(stdout);
     clearerr(stdin);
 
-    if (allow_bg)
+    if (allow_bg) // Not currently in foreground-only mode
     {
+        // Switch to foreground-only mode and print a message about it
         allow_bg = false;
         char *msg = "Entering foreground-only mode (& is now ignored)\n";
         write(STDOUT_FILENO, msg, 50);
     }
-    else
+    else // Currently in foreground-only mode
     {
+        // Exit foreground-only mode and print a message about it
         allow_bg = true;
         char *msg = "Exiting foreground-only mode\n";
         write(STDOUT_FILENO, msg, 30);
     }
+
+    // Give the prompt again and clear stdout
     printf(": ");
     fflush(stdout);
 }
@@ -381,18 +385,19 @@ void handle_redirect(char *file, const char *direction)
 struct background run_bg_census(struct background bg, int lastExit)
 {
     pid_t pid;
-    struct background still_running = {};
-    for (int i = 0; i < bg.size; i++)
+    struct background still_running = {}; // Struct to hold info about all of the still-running processes
+    for (int i = 0; i < bg.size; i++)     // Walk through all of the processes that were running in the background after the last command
     {
-        pid = waitpid(bg.pids[i], &lastExit, WNOHANG);
-        if (pid > 0)
+        pid = waitpid(bg.pids[i], &lastExit, WNOHANG); // Check on it
+        if (pid > 0)                                   // The process has finished
         {
+            // Print a message about the process finishing
             printf("background pid %d is done: ", pid);
             smallsh_status(lastExit);
         }
-        else if (pid == 0)
-            still_running.pids[still_running.size++] = bg.pids[i];
+        else if (pid == 0)                                         // The process is still running
+            still_running.pids[still_running.size++] = bg.pids[i]; // Store its PID in the new background struct
     }
     fflush(stdout);
-    return still_running;
+    return still_running; // Return the new background struct, with only info about still-running background processes
 }
