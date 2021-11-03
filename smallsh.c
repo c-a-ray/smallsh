@@ -33,8 +33,7 @@ int main()
     // Setup SIGINT (Ctrl-C) and SIGTSTP (Ctrl-Z)
     // Initialize sigaction struct for SIGTSTP and register handler to togger foreground-only mode
     struct sigaction sa_SIGTSTP = {0};
-    // sa_SIGTSTP.sa_handler = handle_SIGTSTP;
-    sa_SIGTSTP.sa_handler = SIG_IGN;
+    sa_SIGTSTP.sa_handler = handle_SIGTSTP;
     sigfillset(&sa_SIGTSTP.sa_mask);
     sa_SIGTSTP.sa_flags = 0;
     sigaction(SIGTSTP, &sa_SIGTSTP, NULL);
@@ -114,20 +113,22 @@ struct sigaction setup_sigactions()
 
 void handle_SIGTSTP(int signo)
 {
-    if (allow_bg) // Not currently in foreground-only mode
-    {
-        // Switch to foreground-only mode
-        allow_bg = false;
-        char *msg = "Entering foreground-only mode (& is now ignored)\n";
-        write(STDOUT_FILENO, msg, 50);
-    }
-    else // Currently in foreground-only mode
-    {
-        // Exit foreground-only mode
-        allow_bg = true;
-        char *msg = "Exiting foreground-only mode\n";
-        write(STDOUT_FILENO, msg, 30);
-    }
+    char *msg = "You pressed Ctrl-Z!\n";
+    write(STDOUT_FILENO, msg, 22);
+    // if (allow_bg) // Not currently in foreground-only mode
+    // {
+    //     // Switch to foreground-only mode
+    //     allow_bg = false;
+    //     char *msg = "Entering foreground-only mode (& is now ignored)\n";
+    //     write(STDOUT_FILENO, msg, 50);
+    // }
+    // else // Currently in foreground-only mode
+    // {
+    //     // Exit foreground-only mode
+    //     allow_bg = true;
+    //     char *msg = "Exiting foreground-only mode\n";
+    //     write(STDOUT_FILENO, msg, 30);
+    // }
 }
 
 void reset_command(struct command *cmd)
