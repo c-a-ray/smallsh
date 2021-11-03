@@ -94,11 +94,13 @@ struct sigaction setup_sigactions()
     // Code from "Exploration: Signal Handling API"
 
     // Initialize sigaction struct for SIGTSTP and register handler to togger foreground-only mode
-    struct sigaction sa_SIGTSTP = {{0}};
-    sa_SIGTSTP.sa_handler = handle_SIGTSTP;
-    sigfillset(&sa_SIGTSTP.sa_mask); //
-    sa_SIGTSTP.sa_flags = 0;
-    sigaction(SIGTSTP, &sa_SIGTSTP, NULL);
+    // struct sigaction sa_SIGTSTP = {{0}};
+    // sa_SIGTSTP.sa_handler = handle_SIGTSTP;
+    // sigfillset(&sa_SIGTSTP.sa_mask); //
+    // sa_SIGTSTP.sa_flags = 0;
+    // sigaction(SIGTSTP, &sa_SIGTSTP, NULL);
+
+    signal(SIGTSTP, handle_SIGTSTP);
 
     // Initialize sigaction struct for SIGINT and ignore signal
     struct sigaction sa_SIGINT = {{0}};
