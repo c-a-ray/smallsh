@@ -101,7 +101,7 @@ void handle_SIGTSTP(int signo)
     }
 
     // Give the prompt again and clear stdout
-    printf(": ");
+    // printf(": ");
     fflush(stdout);
 }
 
