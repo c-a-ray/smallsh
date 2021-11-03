@@ -98,17 +98,23 @@ void handle_SIGTSTP(int signo)
     {
         // Switch to foreground-only mode
         allow_bg = false;
-        char *msg = "Entering foreground-only mode (& is now ignored)\n";
-        write(STDOUT_FILENO, msg, strlen(msg));
-        free(msg);
+
+        printf("Entering foreground-only mode (& is now ignored)\n");
+
+        // char *msg = "Entering foreground-only mode (& is now ignored)\n";
+        // write(STDOUT_FILENO, msg, strlen(msg));
+        // free(msg);
     }
     else // Currently in foreground-only mode
     {
         // Exit foreground-only mode
         allow_bg = true;
-        char *msg = "Exiting foreground-only mode\n";
-        write(STDOUT_FILENO, msg, strlen(msg));
-        free(msg);
+
+        printf("Exiting foreground-only mode\n");
+
+        // char *msg = "Exiting foreground-only mode\n";
+        // write(STDOUT_FILENO, msg, strlen(msg));
+        // free(msg);
     }
 
     fflush(stdout);
@@ -170,7 +176,9 @@ void parse_command(char *cmd_str, struct command *cmd)
             {
                 char *result = malloc((sizeof(char) * ((strlen(token)) / 2) + 1) * strlen(pid_str) + 1); // Allocate enough space for a token with only '$' characters
                 expand_pid(result, token, pid_str);                                                      // Replace all instances of "$$" with the PID
+                printf("DEBUG: result of variable expansion: %s\n", result);
                 tokens[(*cmd).nargs] = result;
+                printf("DEBUG: stored in tokens: %s\n", tokens[(*cmd).nargs]);
                 free(result);
             }
             else                              // It's a regular argument
