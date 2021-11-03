@@ -63,6 +63,7 @@ int main()
         // Display prompt
         printf(": ");
         fflush(stdout);
+        fflush(stdin);
 
         // Zero out members of the command struct so we can store the next command
         reset_command(&cmd);
