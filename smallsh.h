@@ -43,15 +43,6 @@ struct background
 };
 
 /**
- * Sets up handling of SIGTSTP (Ctrl-Z) and SIGINT (Ctrl-C)
- * 
- * Catch SIGTSTP and ignore SIGINT, but return SIGINT sigaction struct for later use
- * 
- * @return SIGINT sigaction struct
- */
-struct sigaction setup_sigactions();
-
-/**
  * sa_handler ((*sa_handler)(int)) for SIGTSTP
  * 
  * When SIGTSTP occurs, toggles foreground-only mode.

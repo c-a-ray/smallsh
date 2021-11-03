@@ -26,8 +26,6 @@
 // but cannot be passed as a parameter to `void (*sa_handler)(int)`
 bool allow_bg = true;
 
-// void (*__sa_handler)(int)
-
 int main()
 {
     // Setup SIGINT (Ctrl-C) and SIGTSTP (Ctrl-Z)
@@ -69,13 +67,6 @@ int main()
 
         // Read current command, parse it, and store it in cmd
         parse_command(read_command(), &cmd);
-        int i = 0;
-        printf("\n\n DEBUG: Processing: [");
-        while (cmd.args[i] != NULL)
-        {
-            printf("%s ", cmd.args[i++]);
-        }
-        printf("]\n\n");
 
         // Execute the current command
         cont = exec_cmd(&cmd, &lastExit, sa_SIGINT, &bg);
@@ -89,48 +80,24 @@ int main()
     } while (cont);
 }
 
-// struct sigaction setup_sigactions()
-// {
-//     // Code from "Exploration: Signal Handling API"
-
-//     // Initialize sigaction struct for SIGTSTP and register handler to togger foreground-only mode
-//     struct sigaction sa_SIGTSTP = {0};
-//     sa_SIGTSTP.sa_handler = &handle_SIGTSTP;
-//     sigfillset(&sa_SIGTSTP.sa_mask);
-//     // sa_SIGTSTP.sa_flags = 0;
-//     sigaction(SIGTSTP, &sa_SIGTSTP, NULL);
-
-//     // Initialize sigaction struct for SIGINT and ignore signal
-//     struct sigaction sa_SIGINT = {0};
-//     sa_SIGINT.sa_handler = SIG_IGN;
-//     sigfillset(&sa_SIGINT.sa_mask);
-//     sa_SIGINT.sa_flags = 0;
-//     sigaction(SIGINT, &sa_SIGINT, NULL);
-
-//     // Return SIGINT action for later use
-//     return sa_SIGINT;
-// }
-
 void handle_SIGTSTP(int signo)
 {
     fflush(stdout);
+    clearerr(stdin);
 
     if (allow_bg)
     {
         allow_bg = false;
-        clearerr(stdin);
         char *msg = "Entering foreground-only mode (& is now ignored)\n";
         write(STDOUT_FILENO, msg, 50);
-        fflush(stdout);
     }
     else
     {
         allow_bg = true;
-        clearerr(stdin);
         char *msg = "Exiting foreground-only mode\n";
         write(STDOUT_FILENO, msg, 30);
-        fflush(stdout);
     }
+    printf(": ");
     fflush(stdout);
 }
 
